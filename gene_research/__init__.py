@@ -1,9 +1,9 @@
 """
 GeneX-AI (formerly XenoGenesis)
-Open Source Version 1.0.2
+Open Source Version 1.0.3
 """
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 from .gene_database import GeneDatabase, GeneRecord, ProteinDomain, PathwayRecord
 from .gene_tools import GeneToolRegistry, build_default_gene_tools

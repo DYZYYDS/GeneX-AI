@@ -1,14 +1,15 @@
 # GeneX AI: General Computational Biology Framework
+# GeneX AI: General Computational Biology Framework
 # (GeneX AI：通用计算生物学 AI 框架)
 
-**Version**: 1.0.2
+**Version**: 1.0.3
 **License**: AGPL-3.0
 
 [English](#english) | [中文](#chinese)
 
-## New in v1.0.2
+## New in v1.0.3
+- **Four-Step Multi-Agent Federation Debate**: Upgraded the internal autonomous debate loop. The AI now orchestrates a rigorous 4-step pipeline: **Architect** (Blueprint Design) -> **Theoretical Physicist** (Thermodynamic & Kinetic Validation) -> **Review Committee** (Clinical/Ecological Risk) -> **Experimentalist** (Wet-Lab Execution & Opentrons Scripting).
 - **Dynamic Ontology Tree**: The system now dynamically fetches missing ontology nodes (e.g., diseases, gene functions) directly from the EBI OLS (Ontology Lookup Service) cloud if they are not present in the local SQLite database. This allows for infinite scalability in disease targeting.
-- **Upgraded Multi-Agent Federation Debate**: The debate mode is now strictly governed by First-Principles. The Theoretical Physicist evaluates thermodynamic dead-ends, the Synthetic Biologist redesigns based on quantum constraints, and the Review Committee evaluates evolutionary escape routes and clinical toxicity.
 
 ---
 <a name="english"></a>

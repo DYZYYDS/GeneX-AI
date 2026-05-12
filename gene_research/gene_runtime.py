@@ -100,28 +100,35 @@ class MultiAgentDebateFederation:
         
         _write(f"\n{'='*60}\n🏛️ MULTI-AGENT FEDERATION DEBATE INITIATED 🏛️\n{'='*60}\n\n")
         
-        # 1. 理论物理学家的第一性原理审查
-        _write("👨‍🔬 [Theoretical Physicist] (First-Principles Check): 正在进行热力学推演...\n")
-        physicist_prompt = f"你是严格的理论物理学家。请仅从热力学、量子力学和流体力学角度，指出以下生物学设想中的物理死局：{topic}"
-        physicist_reply = self.runtime.run_iteration("debate_run", 1, stream_writer=stream_writer, override_problem=physicist_prompt)
+        # 1. 架构师 (Architect) - 提出初步方案
+        _write("🏗️ [Architect] (Blueprint Design): 正在构思底层生物学架构...\n")
+        architect_prompt = f"你是极具创新精神的系统生物学架构师。请针对以下命题提出一个宏观的生物学或药学解决方案框架：\n{topic}"
+        architect_reply = self.runtime.run_iteration("debate_run", 1, stream_writer=stream_writer, override_problem=architect_prompt)
+        arch_log = architect_reply.get("research_log", "") + "\n" + str(architect_reply.get("tool_results", []))
+        _write(f"\n【架构师蓝图】:\n{arch_log}\n\n")
+
+        # 2. 理论物理学家 (Theoretical Physicist) - 找茬
+        _write("👨‍🔬 [Theoretical Physicist] (First-Principles Check): 正在进行热力学与动力学推演...\n")
+        physicist_prompt = f"你是严格的理论物理学家。请仅从热力学、量子力学和流体力学等第一性原理角度，审视架构师的方案并指出物理死局：\n{arch_log}"
+        physicist_reply = self.runtime.run_iteration("debate_run", 2, stream_writer=stream_writer, override_problem=physicist_prompt)
         phys_log = physicist_reply.get("research_log", "") + "\n" + str(physicist_reply.get("tool_results", []))
         _write(f"\n【物理学家结论】:\n{phys_log}\n\n")
         
-        # 2. 合成生物学家的妥协与设计
-        _write("🧬 [Synthetic Biologist] (Bio-Engineering Response): 正在基于物理约束设计架构...\n")
-        biologist_prompt = f"你是激进的合成生物学家。面对物理学家的质疑：\n{phys_log}\n请调用底层基因和生化工具，设计出能绕过这些物理限制的异种生物学方案。"
-        biologist_reply = self.runtime.run_iteration("debate_run", 2, stream_writer=stream_writer, override_problem=biologist_prompt)
-        bio_log = biologist_reply.get("research_log", "") + "\n" + str(biologist_reply.get("tool_results", []))
-        _write(f"\n【生物学家方案】:\n{bio_log}\n\n")
-        
-        # 3. 评审委员会的最终裁决
-        _write("⚖️ [Review Committee] (Final Verdict & Ecological Risk): 正在进行生态与毒理审查...\n")
-        reviewer_prompt = f"你是苛刻的Nature期刊评审委员会。请审阅生物学家的方案：\n{bio_log}\n要求：必须指出至少一个潜在的生态崩溃风险或进化退化路径，并给出最终的可行性打分(0-100)。"
+        # 3. 评审委员会 (Review Committee) - 临床与生态审查
+        _write("⚖️ [Review Committee] (Clinical & Ecological Review): 正在进行生态与毒理审查...\n")
+        reviewer_prompt = f"你是苛刻的Nature期刊评审委员会。请综合物理学家的意见，对架构师的方案进行临床(PK/PD)或宏观生态学审查。指出潜在的生态崩溃或耐药性进化逃逸路线：\n架构师方案：{arch_log}\n物理学家意见：{phys_log}"
         reviewer_reply = self.runtime.run_iteration("debate_run", 3, stream_writer=stream_writer, override_problem=reviewer_prompt)
-        rev_log = reviewer_reply.get("research_log", "")
-        _write(f"\n【评审委员会裁决】:\n{rev_log}\n\n{'='*60}\n")
+        rev_log = reviewer_reply.get("research_log", "") + "\n" + str(reviewer_reply.get("tool_results", []))
+        _write(f"\n【评审委员会裁决】:\n{rev_log}\n\n")
         
-        return f"Debate completed. Final verdict: {rev_log}"
+        # 4. 自动化实验员 (Experimentalist) - 最终落地
+        _write("🧪 [Experimentalist] (Wet-Lab Execution): 正在生成可落地的实验代码...\n")
+        exp_prompt = f"你是执行力极强的自动化实验员。前面的三位科学家已经探讨了理论和风险。请调用自动化代码生成工具或分子设计工具，输出最终的化学分子结构式、FASTA序列或 Opentrons 实验机器人的 Python 执行脚本。\n前置讨论总结：{rev_log}"
+        exp_reply = self.runtime.run_iteration("debate_run", 4, stream_writer=stream_writer, override_problem=exp_prompt)
+        exp_log = exp_reply.get("research_log", "")
+        _write(f"\n【实验员落地输出】:\n{exp_log}\n\n{'='*60}\n")
+        
+        return f"Debate completed. Final Execution: {exp_log}"
 
 class GeneResearchRuntime:
     def __init__(
@@ -266,7 +273,7 @@ class GeneResearchRuntime:
     ) -> dict[str, Any]:
         run = self.memory_store.get_run(run_id)
         problem_text = override_problem if override_problem else run["problem"]
-        if ("debate" in problem_text.lower() or "辩论" in problem_text or "探讨" in problem_text) and not problem_text.startswith("你是严格的") and not problem_text.startswith("你是激进的") and not problem_text.startswith("你是苛刻的"):
+        if ("debate" in problem_text.lower() or "辩论" in problem_text or "探讨" in problem_text) and not problem_text.startswith("你是极具") and not problem_text.startswith("你是严格的") and not problem_text.startswith("你是激进的") and not problem_text.startswith("你是苛刻的") and not problem_text.startswith("你是执行力"):
             federation = MultiAgentDebateFederation(self)
             # Create a mock run for debate logging
             if "debate_run" not in [r.get("run_id") for r in self.memory_store.list_runs()]:
