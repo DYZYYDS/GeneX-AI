@@ -6,11 +6,58 @@ import math
 import time
 import requests
 import re
+import urllib.request
+import urllib.error
+import urllib.parse
 from functools import lru_cache
-from typing import Any
+from typing import Any, List, Dict
 
-from .gene_database import GeneDatabase
+from .gene_database import GeneDatabase, GeneRecord, OntologyNode
 from .gene_chemistry import parse_smiles
+
+def dynamic_ontology_search(gene_db: GeneDatabase, query: str, limit: int = 10) -> dict[str, Any]:
+    """
+    动态本体树检索：先查本地 SQLite。如果找不到，则通过 EBI OLS (Ontology Lookup Service) API 
+    去云端检索真实的本体节点 (如 GO, MONDO)，并自动将其存入本地数据库。
+    """
+    # 1. 本地快速检索
+    local_results = gene_db.search_ontology(query, limit)
+    if local_results:
+        return {"source": "local_cache", "query": query, "nodes": local_results}
+
+    # 2. 如果本地没有，启动云端懒加载扩展本体树
+    ebi_url = f"https://www.ebi.ac.uk/ols4/api/search?q={urllib.parse.quote(query)}&ontology=mondo,go&rows={limit}"
+    
+    try:
+        req = urllib.request.Request(ebi_url, headers={"Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode('utf-8'))
+            
+        docs = data.get("response", {}).get("docs", [])
+        if not docs:
+            return {"source": "none", "query": query, "nodes": [], "message": f"未能在本地和云端(EBI OLS)找到 '{query}' 相关的本体节点。"}
+            
+        new_nodes = []
+        for doc in docs:
+            node_id = doc.get("obo_id") or doc.get("short_form", "")
+            if not node_id:
+                continue
+            name = doc.get("label", "")
+            onto_type = "DISEASE" if "MONDO" in node_id else ("GO_BP" if "GO" in node_id else "UNKNOWN")
+            desc_list = doc.get("description", [])
+            desc = desc_list[0] if desc_list else ""
+            
+            node = OntologyNode(node_id=node_id, name=name, type=onto_type, description=desc, parent_id=None)
+            new_nodes.append(node)
+            
+        if new_nodes:
+            gene_db.insert_ontology_nodes(new_nodes)
+            return {"source": "ebi_ols_cloud_lazy_load", "query": query, "nodes": [n.__dict__ for n in new_nodes]}
+            
+    except Exception as e:
+        return {"error": f"云端本体树(EBI OLS)检索失败: {str(e)}"}
+        
+    return {"source": "none", "query": query, "nodes": []}
 
 try:
     import cobra

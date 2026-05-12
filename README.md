@@ -1,20 +1,14 @@
 # GeneX AI: General Computational Biology Framework
 # (GeneX AI：通用计算生物学 AI 框架)
 
-**Version**: 1.0.1
+**Version**: 1.0.2
 **License**: AGPL-3.0
 
 [English](#english) | [中文](#chinese)
 
-## New in v1.0.1
-- **First-Principles Engine**: Transitioned core biological simulations (like Xenobiology and Global Climate Modeling) from empirical logic to strict physical and chemical laws (Thermodynamics, Arrhenius kinetics, Energy Balance Models).
-- **Advanced First-Principles Calculators**: Added raw physics/chemistry calculators for the AI to use: Gibbs Free Energy, Boltzmann Distribution, Quantum Tunneling, Brownian Diffusion, Lorentz Force, Bragg Diffraction, and Capillary Action.
-- **5 Frontier Macro-Engines**: 
-  1. Virtual Clinical Trials Engine
-  2. Epigenetic Reprogramming Simulator
-  3. Pangenome & Horizontal Gene Transfer Dynamics
-  4. Neuro-Genomic Topology Model
-  5. Astrobiology Panspermia Engine
+## New in v1.0.2
+- **Dynamic Ontology Tree**: The system now dynamically fetches missing ontology nodes (e.g., diseases, gene functions) directly from the EBI OLS (Ontology Lookup Service) cloud if they are not present in the local SQLite database. This allows for infinite scalability in disease targeting.
+- **Upgraded Multi-Agent Federation Debate**: The debate mode is now strictly governed by First-Principles. The Theoretical Physicist evaluates thermodynamic dead-ends, the Synthetic Biologist redesigns based on quantum constraints, and the Review Committee evaluates evolutionary escape routes and clinical toxicity.
 
 ---
 <a name="english"></a>

@@ -15,7 +15,7 @@ from .gene_advanced_tools import (
     fetch_3d_structure_info, simulate_molecular_docking, flux_balance_analysis,
     get_tissue_specific_expression, fetch_from_ensembl_api, fetch_from_uniprot_api,
     predict_variant_consequence, design_crispr_grna, predict_immunogenicity_and_toxicity,
-    fetch_genes_by_ontology_api
+    fetch_genes_by_ontology_api, dynamic_ontology_search
 )
 from .gene_integrations import GlobalBioDataGateway, EvidenceTracker, ActiveLearningEngine
 from .gene_advanced_models import BioFoundationModelProxy, EpigeneticAnalyzer, StructuralBiologyEngine
@@ -1259,7 +1259,7 @@ def build_default_gene_tools(gene_db: GeneDatabase) -> GeneToolRegistry:
     registry.register("predict_variant_consequence", "精细到变异层 (Variant-level) 的推断，预测具体的点突变后果 (如 c.1799T>A / p.Val600Glu)。参数: variant_id_or_hgvs(str)", lambda **kwargs: predict_variant_consequence(gene_db=gene_db, **kwargs))
     
     # 终极 10 大模块：数据网关、深度模型、表观遗传学、MD结构计算、系统评测
-    registry.register("search_topology_tree", "搜索本地宏观本体分类树（支持 GO、MONDO 疾病、EXTREME 环境）。获取分类节点 ID 以供精准抓取。参数: query(str)", lambda **kwargs: gene_db.search_ontology(kwargs.get("query", ""), 10))
+    registry.register("search_topology_tree", "动态本体树检索：搜索疾病(MONDO)或基因功能(GO)。如果本地找不到，将自动从欧洲生物信息研究所(EBI OLS)云端抓取并扩展本地树。参数: query(str)", lambda **kwargs: dynamic_ontology_search(gene_db, kwargs.get("query", ""), 10))
     registry.register("fetch_genes_by_ontology", "通过本体树的 GO 编号 (如 GO:0006281) 从 UniProt 云端批量拉取真实基因并永久存入本地库。参数: node_id(str), limit(int, 默认5)", lambda **kwargs: fetch_genes_by_ontology_api(gene_db, kwargs.get("node_id", ""), kwargs.get("limit", 5)))
     
     registry.register("query_global_bio_gateway", "查询海量外部数据库(GTEx, DepMap, ClinVar, OpenTargets)。参数: db_name(str), query_id(str, 支持基因名或MONDO编号), extra_param(str,可选)", 

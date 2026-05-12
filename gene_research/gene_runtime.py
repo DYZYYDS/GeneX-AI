@@ -82,6 +82,47 @@ class GeneRuntimeConfig:
     system_prompt_version: str = "gene_v2"
 
 
+class MultiAgentDebateFederation:
+    """多智能体联邦辩论机制 (Text-based)"""
+    
+    def __init__(self, runtime: 'GeneResearchRuntime'):
+        self.runtime = runtime
+        
+    def initiate_debate(self, topic: str, stream_writer: Callable[[str], None] | None = None) -> str:
+        """
+        针对极度复杂的命题，启动三大虚拟科学家的内部对抗性辩论。
+        """
+        import json
+        
+        def _write(text: str):
+            if stream_writer:
+                stream_writer(text)
+        
+        _write(f"\n{'='*60}\n🏛️ MULTI-AGENT FEDERATION DEBATE INITIATED 🏛️\n{'='*60}\n\n")
+        
+        # 1. 理论物理学家的第一性原理审查
+        _write("👨‍🔬 [Theoretical Physicist] (First-Principles Check): 正在进行热力学推演...\n")
+        physicist_prompt = f"你是严格的理论物理学家。请仅从热力学、量子力学和流体力学角度，指出以下生物学设想中的物理死局：{topic}"
+        physicist_reply = self.runtime.run_iteration("debate_run", 1, stream_writer=stream_writer, override_problem=physicist_prompt)
+        phys_log = physicist_reply.get("research_log", "") + "\n" + str(physicist_reply.get("tool_results", []))
+        _write(f"\n【物理学家结论】:\n{phys_log}\n\n")
+        
+        # 2. 合成生物学家的妥协与设计
+        _write("🧬 [Synthetic Biologist] (Bio-Engineering Response): 正在基于物理约束设计架构...\n")
+        biologist_prompt = f"你是激进的合成生物学家。面对物理学家的质疑：\n{phys_log}\n请调用底层基因和生化工具，设计出能绕过这些物理限制的异种生物学方案。"
+        biologist_reply = self.runtime.run_iteration("debate_run", 2, stream_writer=stream_writer, override_problem=biologist_prompt)
+        bio_log = biologist_reply.get("research_log", "") + "\n" + str(biologist_reply.get("tool_results", []))
+        _write(f"\n【生物学家方案】:\n{bio_log}\n\n")
+        
+        # 3. 评审委员会的最终裁决
+        _write("⚖️ [Review Committee] (Final Verdict & Ecological Risk): 正在进行生态与毒理审查...\n")
+        reviewer_prompt = f"你是苛刻的Nature期刊评审委员会。请审阅生物学家的方案：\n{bio_log}\n要求：必须指出至少一个潜在的生态崩溃风险或进化退化路径，并给出最终的可行性打分(0-100)。"
+        reviewer_reply = self.runtime.run_iteration("debate_run", 3, stream_writer=stream_writer, override_problem=reviewer_prompt)
+        rev_log = reviewer_reply.get("research_log", "")
+        _write(f"\n【评审委员会裁决】:\n{rev_log}\n\n{'='*60}\n")
+        
+        return f"Debate completed. Final verdict: {rev_log}"
+
 class GeneResearchRuntime:
     def __init__(
         self,
@@ -225,6 +266,24 @@ class GeneResearchRuntime:
     ) -> dict[str, Any]:
         run = self.memory_store.get_run(run_id)
         problem_text = override_problem if override_problem else run["problem"]
+        if ("debate" in problem_text.lower() or "辩论" in problem_text or "探讨" in problem_text) and not problem_text.startswith("你是严格的") and not problem_text.startswith("你是激进的") and not problem_text.startswith("你是苛刻的"):
+            federation = MultiAgentDebateFederation(self)
+            # Create a mock run for debate logging
+            if "debate_run" not in [r.get("run_id") for r in self.memory_store.list_runs()]:
+                self.start_run(problem="[Federation Debate]", run_id="debate_run")
+            return {
+                "iteration": iteration,
+                "status": "complete",
+                "backend": "debate_federation",
+                "research_mode": "multi_agent_debate",
+                "research_log": federation.initiate_debate(problem_text, stream_writer),
+                "reasoning_chain": "Completed multi-agent debate.",
+                "next_focus": "",
+                "tool_results": [],
+                "usage": {},
+                "checkpoint": {"triggered": False, "type": None, "checkpoint_id": None, "summary": None},
+            }
+
         prompt_messages = self._build_messages(run_id=run_id, problem=problem_text, iteration=iteration)
         task_type = "reasoning"
 

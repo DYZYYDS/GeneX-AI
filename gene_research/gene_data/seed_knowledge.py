@@ -832,6 +832,7 @@ SEED_ONTOLOGY_NODES: list[OntologyNode] = [
     OntologyNode("MONDO:0045024", "cancer", "DISEASE", "A disease characterized by uncontrolled cellular proliferation.", None),
     OntologyNode("MONDO:0008903", "lung cancer", "DISEASE", "A malignant neoplasm involving the lung.", "MONDO:0045024"),
     OntologyNode("MONDO:0007254", "breast cancer", "DISEASE", "A primary malignant neoplasm of the breast.", "MONDO:0045024"),
+    OntologyNode("MONDO:0018901", "glioblastoma", "DISEASE", "A fast-growing, aggressive type of central nervous system tumor that forms on the supportive tissue of the brain.", "MONDO:0045024"),
     OntologyNode("MONDO:0004992", "neurodegenerative disease", "DISEASE", "A disease caused by progressive loss of structure or function of neurons.", None),
 
     # 异种/极端环境拓扑 (Xeno / Extreme Env)

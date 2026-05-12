@@ -127,10 +127,16 @@ class OpenAICompatibleClient:
 
 class DeepSeekClient(OpenAICompatibleClient):
     def __init__(self, config: DeepSeekConfig) -> None:
+        base_url = config.base_url.rstrip("/")
+        if base_url.endswith("/v1"):
+            base_url = base_url + "/chat/completions"
+        elif not base_url.endswith("/chat/completions"):
+            base_url = f"{base_url}/v1/chat/completions"
+
         backend = ModelBackendConfig(
             name="deepseek",
             api_key=config.api_key,
-            base_url=config.base_url,
+            base_url=base_url,
             model=config.model,
             temperature_reasoning=config.temperature_reasoning,
             temperature_exploration=config.temperature_exploration,
