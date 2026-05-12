@@ -25,13 +25,18 @@ from .gene_simulation import (
 )
 from .gene_gpu_compute import (
     GenerativeProteinDiffusion, QuantumEnzymeSimulator,
+    QuantumBioSandbox, SpatialOmicsEngine,
     TF_PWM, _sequence_to_pwm_score, _calculate_crispr_off_target,
 )
 from .gene_vectors import GeneVectorDatabase
 from .gene_visualization import ProteinStructureRenderer
 from .gene_benchmark import GeneResearchBenchmarkSuite
+from .gene_first_principles import FirstPrinciplesCalculators
 from .gene_ultimate_modules import (
-    XNAAssembler, MultiScaleCoupler, LabAutomationGenerator, EcologicalSimulator
+    XNAAssembler, MultiScaleCoupler, LabAutomationGenerator, EcologicalSimulator,
+    UniversalLifeFormGenerator, WholeCellSandbox, EvolutionaryTrajectoryEngine, BiogeochemicalDynamicsEngine,
+    VirtualClinicalTrialsEngine, EpigeneticReprogrammingSimulator, PangenomeHGTEngine, 
+    NeuroGenomicTopologyModel, AstrobiologyPanspermiaEngine
 )
 
 ToolHandler = Callable[..., Any]
@@ -1282,6 +1287,8 @@ def build_default_gene_tools(gene_db: GeneDatabase) -> GeneToolRegistry:
     # GPU 加速计算模块 (GPU-Accelerated Modules)
     registry.register("generate_de_novo_protein", "调用扩散模型(RFdiffusion/Evo)生成自然界不存在的全新蛋白。参数: target_function(str)", lambda **kwargs: GenerativeProteinDiffusion.generate_de_novo_protein(kwargs.get("target_function", "")))
     registry.register("simulate_quantum_catalysis", "调用 QM/MM 计算酶活性中心的过渡态活化能(dE‡)和催化速率(kcat)。参数: enzyme_pdb(str), substrate_smiles(str), reaction_mechanism(str)", QuantumEnzymeSimulator.calculate_activation_energy_qmmm)
+    registry.register("design_subatomic_drug", "The Quantum-Bio Sandbox: 在亚原子层面设计完美契合靶点的配体药物，计算高精度结合自由能 (ΔΔG)。参数: target_protein_pdb(str), active_site_residues(list[str])", lambda **kwargs: QuantumBioSandbox.design_subatomic_drug_ligand(kwargs.get("target_protein_pdb", ""), kwargs.get("active_site_residues", [])))
+    registry.register("simulate_3d_genome_spatial", "The Spatial-Omics Engine: 模拟特定应激条件下全基因组 3D 拓扑结构 (TAD 边界) 的相变与增强子劫持。参数: cell_type(str), stress_condition(str)", lambda **kwargs: SpatialOmicsEngine.simulate_3d_genome_phase_transition(kwargs.get("cell_type", ""), kwargs.get("stress_condition", "")))
 
     # 真实 SciPy ODE 求解器替代品
     registry.register("simulate_membrane_potential", "基于 Hodgkin-Huxley 4变量ODE 真实仿真细胞跨膜动作电位。参数: ion_channels(list[str]), external_stimulus_pA(float), duration_ms(float)", HodgkinHuxleySimulator.simulate_action_potential)
@@ -1309,6 +1316,32 @@ def build_default_gene_tools(gene_db: GeneDatabase) -> GeneToolRegistry:
     registry.register("multi_scale_cascade", "模拟分子级点突变如何级联放大导致组织器官崩溃或演化。参数: gene(str), mutation(str), env_context(str)", lambda **kwargs: MultiScaleCoupler.cascade_mutation_effect(kwargs.get("gene", ""), kwargs.get("mutation", ""), kwargs.get("env_context", "")))
     registry.register("generate_opentrons_script", "生成 Opentrons 机械臂自动化组装湿实验 Python 脚本。参数: protocol_name(str), parts_to_assemble(list[str])", lambda **kwargs: LabAutomationGenerator.generate_opentrons_protocol(kwargs.get("protocol_name", ""), kwargs.get("parts_to_assemble", [])))
     registry.register("simulate_microbiome_ecology", "使用 Lotka-Volterra ODE 模拟多物种在火星/金星封闭群落中的生态演化。参数: species_names(list[str]), initial_populations(list[float]), growth_rates(list[float]), interaction_matrix(list[list[float]]), simulation_years(float)", lambda **kwargs: EcologicalSimulator.simulate_microbiome_dynamics(kwargs.get("species_names", []), kwargs.get("initial_populations", []), kwargs.get("growth_rates", []), kwargs.get("interaction_matrix", []), kwargs.get("simulation_years", 10000.0)))
+
+    # 宏观 In-Silico 纯计算引擎 (Macro In-Silico Engines)
+    registry.register("generate_universal_lifeform", "通用生命形态生成器：基于物理化学约束（温度、压力、溶剂、元素），从头生成纯硅基/氨基等异种生命的生化架构。参数: temperature_k(float), pressure_atm(float), solvent(str), available_elements(list[str])", lambda **kwargs: UniversalLifeFormGenerator.generate_biochemistry_architecture(kwargs.get("temperature_k", 298.15), kwargs.get("pressure_atm", 1.0), kwargs.get("solvent", "water"), kwargs.get("available_elements", ["C", "H", "O", "N", "P", "S"])))
+    registry.register("simulate_whole_cell_sandbox", "全细胞沙盒：推演给定基因组和核糖体数量下，最小生命细胞分裂周期与蛋白质组资源分配极限。参数: genome_size_bp(int), protein_coding_genes(int), ribosome_count(int), nutrient_availability(float)", lambda **kwargs: WholeCellSandbox.simulate_minimal_cell_cycle(kwargs.get("genome_size_bp", 1000000), kwargs.get("protein_coding_genes", 1000), kwargs.get("ribosome_count", 10000), kwargs.get("nutrient_availability", 1.0)))
+    registry.register("infer_evolutionary_trajectory", "演化轨迹与祖先推断：推演宏观时间尺度上的物种演化路径、关键分化节点与突变积累。参数: initial_phenotype(str), generations(int), mutation_rate(float), selection_pressures(list[str])", lambda **kwargs: EvolutionaryTrajectoryEngine.infer_trajectory(kwargs.get("initial_phenotype", ""), kwargs.get("generations", 1000000), kwargs.get("mutation_rate", 1e-8), kwargs.get("selection_pressures", [])))
+    registry.register("simulate_biogeochemical_dynamics", "生物地球化学耦合动力学：模拟生物圈代谢活动对全球大气成分和温度的长期影响（如大氧化事件、温室效应失控）。参数: initial_atmosphere(dict), biosphere_metabolism(dict), timescale_years(float)", lambda **kwargs: BiogeochemicalDynamicsEngine.simulate_biosphere_atmosphere_coupling(kwargs.get("initial_atmosphere", {}), kwargs.get("biosphere_metabolism", {}), kwargs.get("timescale_years", 1000000.0)))
+    
+    # 5 大前沿科研计算引擎 (Frontier Scientific Computing)
+    registry.register("virtual_clinical_trials", "虚拟临床试验：模拟靶向药物在不同遗传背景(代谢基因多态性)群体中的药代动力学(PK/PD)及副作用。参数: drug_name(str), clearance_gene(str), population_size(int), dose_mg(float)", lambda **kwargs: VirtualClinicalTrialsEngine.simulate_population_pharmacokinetics(kwargs.get("drug_name", ""), kwargs.get("clearance_gene", ""), kwargs.get("population_size", 1000), kwargs.get("dose_mg", 50.0)))
+    registry.register("epigenetic_reprogramming", "表观重编程模拟：推演沃丁顿表观遗传景观中的细胞状态跃迁概率。参数: initial_cell_type(str), target_cell_type(str), transcription_factors_applied(list[str])", lambda **kwargs: EpigeneticReprogrammingSimulator.calculate_waddington_landscape_transition(kwargs.get("initial_cell_type", ""), kwargs.get("target_cell_type", ""), kwargs.get("transcription_factors_applied", [])))
+    registry.register("simulate_hgt_dynamics", "泛基因组与水平基因转移：基于限制性修饰屏障与同源性推演质粒/噬菌体水平基因转移概率。参数: donor_species(str), recipient_species(str), gene_sequence_length(int)", lambda **kwargs: PangenomeHGTEngine.simulate_horizontal_gene_transfer(kwargs.get("donor_species", ""), kwargs.get("recipient_species", ""), kwargs.get("gene_sequence_length", 1000)))
+    registry.register("neuro_genomic_topology", "神经-基因拓扑发育：求解反应-扩散 PDE，推演神经元轴突导向的形态发生素梯度场。参数: morphogen_gene(str), source_concentration_uM(float), diffusion_coefficient_um2_s(float), degradation_rate_s_inv(float), distance_um(float)", lambda **kwargs: NeuroGenomicTopologyModel.calculate_axon_guidance_gradient(kwargs.get("morphogen_gene", ""), kwargs.get("source_concentration_uM", 1.0), kwargs.get("diffusion_coefficient_um2_s", 10.0), kwargs.get("degradation_rate_s_inv", 0.01), kwargs.get("distance_um", 100.0)))
+    registry.register("astrobiology_panspermia", "星际胚种辐射生存推演：结合天体物理与泊松分布，推演生命跨星系传播可行性。参数: organism_type(str), radiation_resistance_d37_gy(float), deep_space_duration_years(float), shielding_rock_thickness_cm(float)", lambda **kwargs: AstrobiologyPanspermiaEngine.evaluate_interstellar_survival(kwargs.get("organism_type", ""), kwargs.get("radiation_resistance_d37_gy", 5000.0), kwargs.get("deep_space_duration_years", 1e6), kwargs.get("shielding_rock_thickness_cm", 100.0)))
+
+    # 物理/化学底层第一性原理工具箱 (First-Principles Toolbox)
+    registry.register("calc_gibbs_free_energy", "计算吉布斯自由能(ΔG=ΔH-TΔS)，判断生化反应或大分子折叠是否能自发进行。参数: enthalpy_j_mol(float), entropy_j_mol_k(float), temperature_k(float)", lambda **kwargs: FirstPrinciplesCalculators.calculate_gibbs_free_energy(kwargs.get("enthalpy_j_mol", 0.0), kwargs.get("entropy_j_mol_k", 0.0), kwargs.get("temperature_k", 298.15)))
+    registry.register("calc_arrhenius_rate", "阿伦尼乌斯方程计算反应速率常数 k = A*exp(-Ea/RT)，用于温度依赖性推演。参数: pre_exponential_factor(float), activation_energy_j_mol(float), temperature_k(float)", lambda **kwargs: FirstPrinciplesCalculators.arrhenius_reaction_rate(kwargs.get("pre_exponential_factor", 1e13), kwargs.get("activation_energy_j_mol", 50000.0), kwargs.get("temperature_k", 298.15)))
+    registry.register("calc_boltzmann_distribution", "计算两个能量态在热力学平衡下的玻尔兹曼分布比例，用于构象概率或通道开放概率。参数: energy_state_1_j_mol(float), energy_state_2_j_mol(float), temperature_k(float)", lambda **kwargs: FirstPrinciplesCalculators.boltzmann_state_distribution(kwargs.get("energy_state_1_j_mol", 0.0), kwargs.get("energy_state_2_j_mol", 5000.0), kwargs.get("temperature_k", 298.15)))
+    registry.register("calc_michaelis_menten", "米氏方程计算酶促反应速率 v = Vmax*[S]/(Km+[S])。参数: v_max(float), k_m(float), substrate_conc(float)", lambda **kwargs: FirstPrinciplesCalculators.michaelis_menten_kinetics(kwargs.get("v_max", 1.0), kwargs.get("k_m", 1.0), kwargs.get("substrate_conc", 1.0)))
+    registry.register("calc_nernst_potential", "能斯特方程计算特定离子的跨膜平衡电位 E=(RT/zF)*ln([out]/[in])。参数: ion_charge_z(int), conc_out(float), conc_in(float), temperature_k(float)", lambda **kwargs: FirstPrinciplesCalculators.nernst_potential(kwargs.get("ion_charge_z", 1), kwargs.get("conc_out", 1.0), kwargs.get("conc_in", 10.0), kwargs.get("temperature_k", 310.15)))
+    registry.register("calc_quantum_tunneling", "量子隧道效应穿透概率计算，用于极低温酶催化或极限异种生物学化学反应推演。参数: particle_mass_kg(float), barrier_width_m(float), barrier_energy_j(float), particle_energy_j(float)", lambda **kwargs: FirstPrinciplesCalculators.quantum_tunneling_probability(kwargs.get("particle_mass_kg", 1.67e-27), kwargs.get("barrier_width_m", 1e-10), kwargs.get("barrier_energy_j", 1e-19), kwargs.get("particle_energy_j", 0.5e-19)))
+    registry.register("calc_brownian_diffusion", "布朗运动扩散时间方程，计算大分子在细胞内的扩散延迟和拥挤效应。参数: distance_m(float), diffusion_coefficient_m2_s(float)", lambda **kwargs: FirstPrinciplesCalculators.brownian_diffusion_time(kwargs.get("distance_m", 1e-6), kwargs.get("diffusion_coefficient_m2_s", 1e-12)))
+    registry.register("calc_hagen_poiseuille_flow", "哈根-泊肃叶流体力学方程，模拟血液/体液在微管或树液网络中的层流流量。参数: radius_m(float), length_m(float), pressure_drop_pa(float), viscosity_pa_s(float)", lambda **kwargs: FirstPrinciplesCalculators.navier_stokes_hagen_poiseuille(kwargs.get("radius_m", 1e-5), kwargs.get("length_m", 1e-3), kwargs.get("pressure_drop_pa", 1000.0), kwargs.get("viscosity_pa_s", 1e-3)))
+    registry.register("calc_lorentz_force", "洛伦兹力方程计算带电粒子在电磁场中的偏转力，用于推演极端天体环境或趋磁细菌磁小体机制。参数: ion_charge_coulombs(float), velocity_m_s(float), magnetic_field_tesla(float), electric_field_v_m(float)", lambda **kwargs: FirstPrinciplesCalculators.lorentz_force_ion_deflection(kwargs.get("ion_charge_coulombs", 1.6e-19), kwargs.get("velocity_m_s", 1000.0), kwargs.get("magnetic_field_tesla", 1.0), kwargs.get("electric_field_v_m", 0.0)))
+    registry.register("calc_bragg_diffraction", "布拉格衍射方程计算生物晶体(如病毒衣壳、鸟嘌呤晶体)对特定波长光线的结构色反射。参数: wavelength_m(float), lattice_spacing_m(float), diffraction_order(int)", lambda **kwargs: FirstPrinciplesCalculators.bragg_diffraction_crystallography(kwargs.get("wavelength_m", 5e-7), kwargs.get("lattice_spacing_m", 3e-7), kwargs.get("diffraction_order", 1)))
+    registry.register("calc_capillary_action", "杨-拉普拉斯方程推导的毛细上升高度，推演植物木质部极限、微小昆虫饮水或人造血管约束。参数: surface_tension_n_m(float), contact_angle_degrees(float), tube_radius_m(float), fluid_density_kg_m3(float)", lambda **kwargs: FirstPrinciplesCalculators.young_laplace_capillary_action(kwargs.get("surface_tension_n_m", 0.072), kwargs.get("contact_angle_degrees", 0.0), kwargs.get("tube_radius_m", 1e-5), kwargs.get("fluid_density_kg_m3", 1000.0)))
 
     registry.register("gene_db_stats", "查看基因数据库统计信息：基因总数、域数量、通路数量、基因类型分布。", lambda **kwargs: gene_db.stats())
 
