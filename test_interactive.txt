@@ -1,0 +1,5 @@
+sk-10602936dcc340f3841639bdcb358057
+
+deepseek-chat
+查询肺癌的潜在靶点，并设计一段敲除该靶点且脱靶率极低的 CRISPR gRNA 序列。
+quit
